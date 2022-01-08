@@ -1,22 +1,35 @@
+import { API_URL } from '../config/constants';
 import axios from 'axios';
 import { useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import './detail.scss';
 
 function ProductView(){
-    const [ product, setProducts ] = useState(null);
+    const [ product, setProduct ] = useState(null);
     const param = useParams();
+    const navigate = useNavigate();
     const { id } = param;
     useEffect(() => {
         axios.get(
-            `https://fd6e5b0f-041b-4df8-b2a4-379f78748cf6.mock.pstmn.io/product/${id}`
+            `${API_URL}/products/${id}`
         ).then(function(result){
-            setProducts(result.data);
+            setProduct(result.data.product);
+            console.log(result.data);
         })
         .catch(function(error){
             console.log(error);
         })
     }, []);
+    const productDel = () => {
+        axios.delete(`${API_URL}/products/${id}`)
+        .then(function(result){
+            console.log("삭제되었습니다.");
+            navigate(-1);
+        })
+        .catch(function(error){
+            console.log(error);
+        })
+    }
     if(product == null) {
         return <div>상품정보를 받고있습니다...</div>
     }
@@ -33,8 +46,11 @@ function ProductView(){
             <div id="contents-box">
                 <div>{product.name}</div>
                 <div>{product.price}</div>
-                <div>2022년 1월 4일</div>
-                <div>설명글 어쩌고 저쩌고....</div>
+                <div>{product.createdAt}</div>
+                <div>{product.description}</div>
+            </div>
+            <div className="btn">
+                <span onClick={productDel}>삭제하기</span>
             </div>
         </div>
     );
